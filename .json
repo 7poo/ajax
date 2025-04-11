@@ -1,0 +1,17 @@
+{
+  "currentPage": 1,
+  "totalPages": 10,
+  "totalItems": 100,
+  "products": [
+    {
+      "id": 1,
+      "name": "Black Striped T-shirt",
+      "price": 120,
+      "rating": 5.0,
+      "discount": 30,
+      "image": "url-hinh-1.jpg"
+      // ...
+    },
+    ...
+  ]
+}
