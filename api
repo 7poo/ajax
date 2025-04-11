@@ -1,0 +1,72 @@
+document.querySelectorAll('.page-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const page = this.getAttribute('data-page');
+    loadProducts(page);
+  });
+});
+
+document.querySelector('.prev-btn').addEventListener('click', function() {
+  // Lấy currentPage từ state hiện tại, sau đó gọi loadProducts(currentPage - 1)
+});
+
+document.querySelector('.next-btn').addEventListener('click', function() {
+  // Lấy currentPage từ state hiện tại, sau đó gọi loadProducts(currentPage + 1)
+});
+function loadProducts(page = 1) {
+  const limit = 10; // Hoặc giá trị bạn muốn
+  fetch(`/api/products?page=${page}&limit=${limit}`)
+    .then(response => response.json())
+    .then(data => {
+      // data: { currentPage, totalPages, products: [...] }
+      // 1. Cập nhật giao diện hiển thị danh sách sản phẩm
+      renderProductList(data.products);
+      // 2. Cập nhật thông tin phân trang (currentPage, totalPages)
+      updatePaginationUI(data.currentPage, data.totalPages);
+    })
+    .catch(error => {
+      console.error('Error fetching products:', error);
+    });
+}
+function renderProductList(products) {
+  const productListEl = document.querySelector('.product-items');
+  // Xoá hết sản phẩm cũ
+  productListEl.innerHTML = '';
+
+  // Tạo thẻ HTML cho mỗi product
+  products.forEach(product => {
+    const productCard = document.createElement('div');
+    productCard.classList.add('product-card');
+
+    productCard.innerHTML = `
+      <img src="${product.image}" alt="${product.name}">
+      <h3 class="product-name">${product.name}</h3>
+      <p class="product-price">$${product.price}</p>
+      <p class="product-rating">${product.rating}/5</p>
+      ${
+        product.discount
+          ? `<span class="product-discount">-${product.discount}%</span>`
+          : ''
+      }
+    `;
+    productListEl.appendChild(productCard);
+  });
+}
+function updatePaginationUI(currentPage, totalPages) {
+  // Vô hiệu hoá nút prev nếu currentPage = 1
+  const prevBtn = document.querySelector('.prev-btn');
+  prevBtn.disabled = (currentPage === 1);
+
+  // Vô hiệu hoá nút next nếu currentPage = totalPages
+  const nextBtn = document.querySelector('.next-btn');
+  nextBtn.disabled = (currentPage === totalPages);
+
+  // Cập nhật CSS highlight cho nút trang đang active
+  document.querySelectorAll('.page-btn').forEach(btn => {
+    const btnPage = parseInt(btn.getAttribute('data-page'), 10);
+    if (btnPage === currentPage) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+}
